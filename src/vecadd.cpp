@@ -100,17 +100,11 @@ cl::Device pickUpDevice(cl::Platform platform)
 
 int main(int argc, char** argv)
 {
-    if (argc != 2)
-    {
-        std::cerr << "Usage: " << argv[0] << " vectorSize" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
     cl::Platform platform = pickUpPlatform();
     cl::Device device = pickUpDevice(platform);
 
     cl::Context runtimeContext({device});
-    cl::Program program = loadProgram(runtimeContext, "../kernel.cl");
+    cl::Program program = loadProgram(runtimeContext, "../src/kernelAdd.cl");
     try
     {
         program.build({device});   
@@ -125,14 +119,12 @@ int main(int argc, char** argv)
     }
 
     cl::Kernel simpleAddKernel(program, "simple_add");
-    
-    int vecSize = atoi(argv[1]);
 
     std::cout << "# Vector Addition benchmark" << std::endl;
     std::cout << "#N\tTime(OCL)\tTime\t\tMB/s(OCL)\tMB/s" << std::endl;
     for (int i = 1000 ; i < 1e6 ; i = i * 1.5)
     {
-        vecSize = i;
+        int vecSize = i;
         std::vector<int>vec1; vec1.reserve(vecSize);
         std::vector<int>vec2; vec2.reserve(vecSize);
         std::vector<int>vec3(vecSize);
@@ -179,6 +171,5 @@ int main(int argc, char** argv)
                     << vecSize * sizeof(int) / classic_time / 1e6
                     << std::endl;
     }
-    
     exit(EXIT_SUCCESS);
 }
