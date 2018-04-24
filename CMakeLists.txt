@@ -2,7 +2,7 @@
 cmake_minimum_required (VERSION 3.2)
 
 # Define project name
-project (OpenCL_Example)
+project (ocl_vecadd)
 
 # Tell CMake to compile with C++14
 set(CMAKE_CXX_STANDARD 14)
@@ -16,12 +16,14 @@ if (NOT OPENCL_FOUND)
 	message(FATAL_ERROR, "OpenCL not found.")
 endif()
 
-include_directories(${OpenCL_INCLUDE_DIRS})
+include_directories(${OpenCL_INCLUDE_DIRS} includes/)
 link_directories(${OpenCL_LIBRARY})
 
 # Source code of application
 set (SOURCES 
-		main.cpp
+		src/vecadd_self.cpp
+
+		includes/benchmark.hpp
 )
 
 # Set up executable
