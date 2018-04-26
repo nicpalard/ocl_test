@@ -43,6 +43,14 @@ set (IMCOPY_IMG_SRC
 		include/opencl_utils.hpp
 )
 
+set (IMCONV_BUFF_SRC
+		src/imconvBuffer.cpp
+		include/opencl_utils.hpp
+)
+
+set (OCL2_TEST_SRC
+	src/ocl2test.cpp)
+
 # Set up executable
 add_executable (ocl_vecadd ${VECADD_SRC})
 target_link_libraries(ocl_vecadd ${OpenCL_LIBRARY})
@@ -52,3 +60,9 @@ target_link_libraries(ocl_imcopy_buff ${OpenCL_LIBRARY} ${OpenCV_LIBS})
 
 add_executable(ocl_imcopy_img ${IMCOPY_IMG_SRC})
 target_link_libraries(ocl_imcopy_img ${OpenCL_LIBRARY} ${OpenCV_LIBS})
+
+add_executable(ocl_imconv_buff ${IMCONV_BUFF_SRC})
+target_link_libraries(ocl_imconv_buff ${OpenCL_LIBRARY} ${OpenCV_LIBS})
+
+add_executable(ocl2_test ${OCL2_TEST_SRC})
+target_link_libraries(ocl2_test ${OpenCL_LIBRARY})
