@@ -1,10 +1,6 @@
 #define __CL_ENABLE_EXCEPTIONS
 
-#include <iostream>
-#include <fstream>
-#include <streambuf>
-#include <CL/cl.hpp>
-
+#include "opencl_utils.hpp"
 #include "benchmark.hpp"
 
 void printVector(int* vector, int length)
@@ -35,88 +31,13 @@ void vectorAdd(std::vector<int> vec1, std::vector<int> vec2, std::vector<int> *o
     }
 }
 
-cl::Platform pickUpPlatform()
-{
-    /* Get available platforms.
-     * This is an equivalent of clinfo in shell */
-    std::vector<cl::Platform> platforms;
-    cl::Platform::get(&platforms);
-    if (platforms.size() == 0)
-    {
-        std::cerr << "No platform found." << std::endl;
-        exit(EXIT_FAILURE);  
-    }
-    
-    /* Using the first available platform */
-    cl::Platform platform = platforms.at(0);
-    /* Display platform name using C++ bindings wrapping clGetPlatformInfo function */
-    std::cerr << "Using platform " << platform.getInfo<CL_PLATFORM_NAME>() << std::endl;
-    return platform;
-}
-
-
-cl::Program loadProgram(cl::Context context, std::string fileName)
-{
-    std::ifstream kernelSource(fileName);
-    if (kernelSource.is_open())
-    {
-        std::string sourceCode;
-        /* For efficiency purposes, preallocate the string by going to the end of file
-         * using seekg, getting the size using tellg and then go back to the beginning */
-        kernelSource.seekg(0, std::ios::end);   
-        sourceCode.reserve(kernelSource.tellg());
-        kernelSource.seekg(0, std::ios::beg);
-        /* Read source file into string using streambuf_iterator 
-         * Extra parenthesis to constructor due to the "most vexing parse" */
-        sourceCode.assign((std::istreambuf_iterator<char>(kernelSource)), 
-                                std::istreambuf_iterator<char>());
-        kernelSource.close();
-        /* Create the program using the source code and the context */
-        return cl::Program(context, cl::Program::Sources(1, std::make_pair(sourceCode.c_str(), sourceCode.length())));
-    }
-    else
-    {
-        std::cerr << "Could not load kernel source code located in " + fileName << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-}
-
-cl::Device pickUpDevice(cl::Platform platform)
-{
-    /* Get available devices from platform. */
-    std::vector<cl::Device> devices;
-    platform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
-    if (devices.size() == 0)
-    {
-        std::cerr << "No device found." << std::endl;
-    }
-
-    /* Using the first available device */
-    cl::Device device = devices.at(0);
-    std::cout<< "Using device: " << device.getInfo<CL_DEVICE_NAME>() << std::endl;
-    return device;
-}
-
 int main(int argc, char** argv)
 {
-    cl::Platform platform = pickUpPlatform();
-    cl::Device device = pickUpDevice(platform);
+    cl::Platform platform = get_platform();
+    cl::Device device = get_device(platform);
 
     cl::Context runtimeContext({device});
-    cl::Program program = loadProgram(runtimeContext, "../src/kernelAdd.cl");
-    try
-    {
-        program.build({device});   
-    }
-    catch(cl::Error e)
-    {
-        std::cerr << "Could not build program: "<< std::endl
-                    << "\tDevice name: " << device.getInfo<CL_DEVICE_NAME>() << std::endl
-                    << "\tStatus code: " << program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(device)  << std::endl
-                    << "Log: " << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device) << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    cl::Program program = load_and_build_program(runtimeContext, device, "../src/kernelAdd.cl");
 
     cl::Kernel simpleAddKernel(program, "simple_add");
 

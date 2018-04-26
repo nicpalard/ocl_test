@@ -28,16 +28,27 @@ link_directories(${OpenCL_LIBRARY} ${OpenCV_LIB_DIR})
 set (VECADD_SRC 
 		src/vecadd.cpp
 		include/benchmark.hpp
+		include/opencl_utils.hpp
 )
 
-set (IMBLUR_SRC
-		src/imblur.cpp
+set (IMCOPY_BUFF_SRC
+		src/imcopyBuffer.cpp
 		include/benchmark.hpp
+		include/opencl_utils.hpp
+)
+
+set (IMCOPY_IMG_SRC
+		src/imcopyImg.cpp
+		include/benchmark.hpp
+		include/opencl_utils.hpp
 )
 
 # Set up executable
 add_executable (ocl_vecadd ${VECADD_SRC})
 target_link_libraries(ocl_vecadd ${OpenCL_LIBRARY})
 
-add_executable(ocl_imblur ${IMBLUR_SRC})
-target_link_libraries(ocl_imblur ${OpenCL_LIBRARY} ${OpenCV_LIBS})
+add_executable(ocl_imcopy_buff ${IMCOPY_BUFF_SRC})
+target_link_libraries(ocl_imcopy_buff ${OpenCL_LIBRARY} ${OpenCV_LIBS})
+
+add_executable(ocl_imcopy_img ${IMCOPY_IMG_SRC})
+target_link_libraries(ocl_imcopy_img ${OpenCL_LIBRARY} ${OpenCV_LIBS})
